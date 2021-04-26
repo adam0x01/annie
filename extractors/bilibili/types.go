@@ -55,6 +55,7 @@ type dashInfo struct {
 	CurQuality  int         `json:"quality"`
 	Description []string    `json:"accept_description"`
 	Quality     []int       `json:"accept_quality"`
+	Timelength  int         `json:"timelength"`
 	Streams     dashStreams `json:"dash"`
 }
 

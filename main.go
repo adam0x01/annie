@@ -4,17 +4,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"strings"
+	// "os"
 
 	"github.com/fatih/color"
 
 	"github.com/iawia002/annie/downloader"
 	"github.com/iawia002/annie/extractors"
 	"github.com/iawia002/annie/extractors/types"
-	"github.com/iawia002/annie/request"
-	"github.com/iawia002/annie/utils"
 )
 
 var (
@@ -197,65 +193,97 @@ func printError(url string, err error) {
 	)
 }
 
-func main() {
-	flag.Parse()
-	args := flag.Args()
-	if version {
-		utils.PrintVersion()
-		return
-	}
+// func main() {
+// 	flag.Parse()
+// 	args := flag.Args()
+// 	if version {
+// 		utils.PrintVersion()
+// 		return
+// 	}
 
-	if debug {
-		utils.PrintVersion()
-	}
+// 	if debug {
+// 		utils.PrintVersion()
+// 	}
 
-	if file != "" {
-		f, err := os.Open(file)
-		if err != nil {
-			fmt.Printf("Error %v", err)
-			return
-		}
-		defer f.Close() // nolint
+// 	if file != "" {
+// 		f, err := os.Open(file)
+// 		if err != nil {
+// 			fmt.Printf("Error %v", err)
+// 			return
+// 		}
+// 		defer f.Close() // nolint
 
-		fileItems := utils.ParseInputFile(f, items, itemStart, itemEnd)
-		args = append(args, fileItems...)
-	}
+// 		fileItems := utils.ParseInputFile(f, items, itemStart, itemEnd)
+// 		args = append(args, fileItems...)
+// 	}
 
-	if len(args) < 1 {
-		fmt.Println("Too few arguments")
-		fmt.Println("Usage: annie [args] URLs...")
-		flag.PrintDefaults()
-		return
-	}
+// 	if len(args) < 1 {
+// 		fmt.Println("Too few arguments")
+// 		fmt.Println("Usage: annie [args] URLs...")
+// 		flag.PrintDefaults()
+// 		return
+// 	}
 
-	if cookie != "" {
-		// If cookie is a file path, convert it to a string to ensure cookie is always string
-		if _, fileErr := os.Stat(cookie); fileErr == nil {
-			// Cookie is a file
-			data, err := ioutil.ReadFile(cookie)
-			if err != nil {
-				color.Red("%v", err)
-				return
-			}
-			cookie = strings.TrimSpace(string(data))
-		}
-	}
+// 	if cookie != "" {
+// 		// If cookie is a file path, convert it to a string to ensure cookie is always string
+// 		if _, fileErr := os.Stat(cookie); fileErr == nil {
+// 			// Cookie is a file
+// 			data, err := ioutil.ReadFile(cookie)
+// 			if err != nil {
+// 				color.Red("%v", err)
+// 				return
+// 			}
+// 			cookie = strings.TrimSpace(string(data))
+// 		}
+// 	}
 
-	request.SetOptions(request.Options{
-		RetryTimes: retryTimes,
-		Cookie:     cookie,
-		Refer:      refer,
-		Debug:      debug,
-	})
+// 	request.SetOptions(request.Options{
+// 		RetryTimes: retryTimes,
+// 		Cookie:     cookie,
+// 		Refer:      refer,
+// 		Debug:      debug,
+// 	})
 
-	var isErr bool
-	for _, videoURL := range args {
-		if err := download(videoURL); err != nil {
-			printError(videoURL, err)
-			isErr = true
-		}
+// 	var isErr bool
+// 	for _, videoURL := range args {
+// 		if err := download(videoURL); err != nil {
+// 			printError(videoURL, err)
+// 			isErr = true
+// 		}
+// 	}
+// 	if isErr {
+// 		os.Exit(1)
+// 	}
+// }
+
+func ShowInfo() error {
+	var videoURL = "https://www.bilibili.com/video/BV1Fs411Z7KM"
+
+	// options
+	infoOnly = true
+	extractedData = true
+
+	if err := download(videoURL); err != nil {
+		return err
 	}
-	if isErr {
-		os.Exit(1)
+	return nil
+}
+
+func DownloadAudio() error {
+	var videoURL = "https://www.bilibili.com/video/BV1Fs411Z7KM"
+
+	// options
+	infoOnly = false
+	extractedData = false
+
+	outputPath = "/tmp"
+
+	if err := download(videoURL); err != nil {
+		return err
 	}
+	return nil
+}
+
+func main () {
+	DownloadAudio()
 }

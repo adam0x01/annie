@@ -74,19 +74,19 @@ func genAPI(aid, cid, quality int, bangumi bool, cookie string) (string, error) 
 }
 
 func genParts(dashData *dashInfo, quality int, referer string) ([]*types.Part, error) {
-	parts := make([]*types.Part, 2)
+	parts := make([]*types.Part, 1)
 	checked := false
 	for _, stream := range dashData.Streams.Video {
 		if stream.ID == quality {
-			s, err := request.Size(stream.BaseURL, referer)
+			_, err := request.Size(stream.BaseURL, referer)
 			if err != nil {
 				return nil, err
 			}
-			parts[0] = &types.Part{
-				URL:  stream.BaseURL,
-				Size: s,
-				Ext:  "mp4",
-			}
+			// parts[0] = &types.Part{
+			// 	URL:  stream.BaseURL,
+			// 	Size: s,
+			// 	Ext:  "mp4",
+			// }
 			checked = true
 			break
 		}
@@ -301,6 +301,7 @@ func bilibiliDownload(options bilibiliOptions, extractOption types.Options) *typ
 	if err != nil {
 		return types.EmptyData(options.url, err)
 	}
+
 	var dashData dashInfo
 	if data.Data.Description == nil {
 		dashData = data.Result
@@ -360,7 +361,7 @@ func bilibiliDownload(options bilibiliOptions, extractOption types.Options) *typ
 		if err != nil {
 			return types.EmptyData(options.url, err)
 		}
-		parts[1] = audioPart
+		parts[0] = audioPart
 		var size int64
 		for _, part := range parts {
 			size += part.Size
@@ -387,10 +388,11 @@ func bilibiliDownload(options bilibiliOptions, extractOption types.Options) *typ
 	}
 
 	return &types.Data{
-		Site:    "哔哩哔哩 bilibili.com",
-		Title:   title,
-		Type:    types.DataTypeVideo,
-		Streams: streams,
+		Site:     "哔哩哔哩 bilibili.com",
+		Title:    title,
+		Duration: data.Data.Timelength,
+		Type:     types.DataTypeVideo,
+		Streams:  streams,
 		Caption: &types.Part{
 			URL: fmt.Sprintf("https://comment.bilibili.com/%d.xml", options.cid),
 			Ext: "xml",
