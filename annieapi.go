@@ -1,9 +1,10 @@
-package annieapi
+package annie
 
 import (
 	"encoding/json"
 	"flag"
 	"fmt"
+
 	// "os"
 
 	"github.com/fatih/color"
@@ -284,6 +285,6 @@ func DownloadAudio() error {
 	return nil
 }
 
-func main () {
-	DownloadAudio()
-}
+// func main() {
+// 	DownloadAudio()
+// }
