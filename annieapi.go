@@ -1,7 +1,6 @@
 package annie
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 
@@ -124,7 +123,7 @@ func init() {
 	flag.BoolVar(&episodeTitleOnly, "eto", false, "File name of each bilibili episode doesn't include the playlist title")
 }
 
-func download(videoURL string) error {
+func download(videoURL string) ([]*types.Data, error) {
 	data, err := extractors.Extract(videoURL, types.Options{
 		Playlist:         playlist,
 		Items:            items,
@@ -140,16 +139,16 @@ func download(videoURL string) error {
 	if err != nil {
 		// if this error occurs, it means that an error occurred before actually starting to extract data
 		// (there is an error in the preparation step), and the data list is empty.
-		return err
+		return nil, err
 	}
 
 	if extractedData {
-		jsonData, err := json.MarshalIndent(data, "", "\t")
-		if err != nil {
-			return err
-		}
-		fmt.Printf("%s\n", jsonData)
-		return nil
+		// jsonData, err := json.MarshalIndent(data, "", "\t")
+		// if err != nil {
+		// 	return err
+		// }
+		// fmt.Printf("%s\n", jsonData)
+		return data, nil
 	}
 
 	defaultDownloader := downloader.New(downloader.Options{
@@ -182,9 +181,9 @@ func download(videoURL string) error {
 		}
 	}
 	if len(errors) != 0 {
-		return errors[0]
+		return nil, errors[0]
 	}
-	return nil
+	return nil, nil
 }
 
 func printError(url string, err error) {
@@ -257,34 +256,51 @@ func printError(url string, err error) {
 // 	}
 // }
 
-func ShowInfo() error {
-	var videoURL = "https://www.bilibili.com/video/BV1Fs411Z7KM"
+func ShowInfo(url string) (*types.Data, error) {
+	var videoURL = url
 
 	// options
 	infoOnly = true
 	extractedData = true
 
-	if err := download(videoURL); err != nil {
-		return err
+	data, err := download(videoURL)
+
+	if err != nil {
+		return nil, err
 	}
-	return nil
+
+	return data[0], nil
 }
 
-func DownloadAudio() error {
-	var videoURL = "https://www.bilibili.com/video/BV1Fs411Z7KM"
+func DownloadAudio(url string, path2save string) error {
+	var videoURL = url
 
 	// options
 	infoOnly = false
 	extractedData = false
 
-	outputPath = "/tmp"
+	if path2save == "" {
+		outputPath = "/tmp"
+	} else {
+		outputPath = path2save
+	}
 
-	if err := download(videoURL); err != nil {
+	if _, err := download(videoURL); err != nil {
 		return err
 	}
 	return nil
 }
 
 // func main() {
-// 	DownloadAudio()
+// 	// DownloadAudio("https://www.bilibili.com/video/BV1Fs411Z7KM")
+// 	data, err := ShowInfo("https://www.bilibili.com/video/BV1Fs411Z7KM")
+// 	if err != nil {
+// 		fmt.Printf("err %s\n", err)
+// 		return
+// 	}
+// 	fmt.Printf("%s\n", data.Title)
+
+// 	if data.Duration > 600000 {
+// 		fmt.Printf("large then 10 mins")
+// 	}
 // }
