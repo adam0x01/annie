@@ -272,12 +272,13 @@ func ShowInfo(url string) (*types.Data, error) {
 	return data[0], nil
 }
 
-func DownloadAudio(url string, path2save string) error {
+func DownloadAudio(url string, path2save string, filename string) error {
 	var videoURL = url
 
 	// options
 	infoOnly = false
 	extractedData = false
+	outputName = filename
 
 	if path2save == "" {
 		outputPath = "/tmp"
@@ -292,7 +293,7 @@ func DownloadAudio(url string, path2save string) error {
 }
 
 // func main() {
-// 	// DownloadAudio("https://www.bilibili.com/video/BV1Fs411Z7KM")
+// 	DownloadAudio("https://www.bilibili.com/video/BV1Fs411Z7KM", "/tmp", "aaa")
 // 	data, err := ShowInfo("https://www.bilibili.com/video/BV1Fs411Z7KM")
 // 	if err != nil {
 // 		fmt.Printf("err %s\n", err)
